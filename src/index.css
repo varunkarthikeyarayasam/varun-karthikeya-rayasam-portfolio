@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens: RGB triplets so Tailwind can apply opacity. */
+@layer base {
+  :root {
+    --bg: 247 240 229;          /* warm ivory */
+    --surface: 183 165 232;     /* rich lavender */
+    --subtle: 246 239 237;      /* warm rose ivory */
+    --ink: 40 37 34;            /* deep charcoal */
+    --muted: 117 106 96;        /* muted taupe */
+    --line: 225 216 236;
+    --line-strong: 190 177 163;
+    --accent: 49 92 232;        /* cobalt blue */
+    --accent-hover: 37 72 194;
+    --accent-soft: 183 165 232;
+    --peach: 217 143 120;
+    --peach-soft: 217 143 120;
+    --peach-deep: 201 118 95;
+    --violet: 137 114 198;
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-io: cubic-bezier(0.7, 0, 0.2, 1);
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body { min-height: 100vh; overflow-x: hidden; background: rgb(var(--bg)); }
+
+  ::selection { background: rgb(var(--peach)); color: rgb(var(--ink)); }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-12; }
+  .section-mark {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: rgb(var(--muted));
+    font-family: theme('fontFamily.mono');
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .section-mark::before { content: ''; width: 1.3rem; border-top: 1px solid rgb(var(--accent)); }
+  .contact .section-mark { color: rgb(var(--ink) / 0.78); }
+
+  /* Display type: Fraunces, soft and a little wonky in italic. */
+  .display {
+    font-family: theme('fontFamily.display');
+    font-weight: 350;
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 100, 'WONK' 0;
+    letter-spacing: -0.035em;
+  }
+  .display-i {
+    font-style: italic;
+    font-variation-settings: 'SOFT' 100, 'WONK' 1;
+    letter-spacing: -0.03em;
+  }
+  .painted-name {
+    margin: 0;
+    width: 100%;
+    font-size: clamp(2rem, 9.2vw, 9rem);
+    line-height: 0.98;
+    padding-bottom: 0.16em;
+    letter-spacing: -0.045em;
+    text-align: center;
+    clip-path: none;
+  }
+  .painted-name-line { display: block; }
+  .painted-name-line-second { margin-left: 0; }
+  .paint-name-brush { pointer-events: none; }
+  .paint-name-brush-travel { transform: translateX(0); opacity: 0; }
+  .note {
+    font-family: theme('fontFamily.display');
+    font-style: italic;
+    font-variation-settings: 'SOFT' 100, 'WONK' 1;
+  }
+
+  /* One line of a masked headline. Padding keeps descenders and italic overhang unclipped. */
+  .line-mask { display: block; overflow: hidden; padding: 0.08em 0.06em 0.16em; margin: -0.08em -0.06em -0.16em; }
+  .line-inner { display: block; }
+
+  /* Underline that slides in from the left. */
+  .u-slide {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1.5px;
+    transition: background-size 0.45s var(--ease);
+  }
+  .u-slide:hover, .u-slide:focus-visible, .group:hover .u-slide, .group:focus-visible .u-slide { background-size: 100% 1.5px; }
+  .u-slide[aria-current='true'] { background-size: 100% 1.5px; }
+
+  /* Hover fill for contact rows. */
+  .row-fill { position: relative; isolation: isolate; }
+  .row-fill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgb(var(--surface) / 0.7);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.55s var(--ease);
+  }
+  .row-fill:hover::before, .row-fill:focus-visible::before { transform: scaleX(1); }
+
+  /* Pointer-reactive decoration. --px / --py (-1..1) come from usePointerDrift. */
+  .drift {
+    transform: translate3d(calc(var(--px, 0) * var(--dx, 0px)), calc(var(--py, 0) * var(--dy, 0px)), 0);
+    transition: transform 0.7s var(--ease);
+    will-change: transform;
+  }
+  /* Scroll parallax. --p / --ps come from useScrollProgress; without them everything stays put. */
+  .par {
+    transform: translate3d(0, calc(var(--p, 0) * var(--par, -26px)), 0) scale(var(--ps, 1));
+    will-change: transform;
+  }
+
+  .spin-slow { animation: spin 28s linear infinite; }
+  .spin-slower { animation: spin 40s linear infinite reverse; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes name-paint-reveal {
+  from { clip-path: polygon(0% 0%, 0% 0%, 0% 14%, 0% 29%, 0% 43%, 0% 57%, 0% 71%, 0% 86%, 0% 100%, 0% 100%); }
+  to { clip-path: polygon(0% 0%, 100% 0%, 96% 14%, 100% 29%, 96% 43%, 100% 57%, 96% 71%, 100% 86%, 97% 100%, 0% 100%); }
+}
+@keyframes name-paint-brush {
+  0% { transform: translateX(0); opacity: 0.98; }
+  88% { transform: translateX(88%); opacity: 0.98; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* Entrances. Content is visible by default; hidden states only apply when JS is
+   running AND the visitor has not asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .painted-name { animation: name-paint-reveal 1.95s cubic-bezier(0.72, 0, 0.25, 1) both; }
+  .paint-name-brush-travel { animation: name-paint-brush 1.95s cubic-bezier(0.72, 0, 0.25, 1) both; }
+
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s var(--ease) var(--d, 0ms), transform 1s var(--ease) var(--d, 0ms);
+  }
+  .js .reveal.in { opacity: 1; transform: none; }
+
+  .js .lines .line-inner {
+    transform: translateY(115%);
+    transition: transform 1.1s var(--ease) calc(var(--base, 0ms) + var(--i, 0) * 100ms);
+  }
+  .js .lines.in .line-inner { transform: none; }
+
+  /* Image reveal: a clip wipes up while the picture settles from a slight zoom. */
+  .js .mask-frame {
+    clip-path: inset(100% 0 0 0 round 20px);
+    transition: clip-path 1.25s var(--ease-io);
+  }
+  .js .mask-frame.in { clip-path: inset(0 0 0 0 round 20px); }
+  .js .mask-frame .mask-inner { transform: scale(1.28); transition: transform 1.7s var(--ease); }
+  .js .mask-frame.in .mask-inner { transform: none; }
+
+  /* Hand-drawn squiggle draws itself. */
+  .js .squig path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.3s var(--ease-io) 0.9s; }
+  .js .squig.in path { stroke-dashoffset: 0; }
+
+  /* Closing transition: a peach sweep rises behind the contact section as it arrives. */
+  .js .contact-bg {
+    clip-path: circle(0% at 50% 100%);
+    transition: clip-path 1.5s var(--ease-io);
+  }
+  .js .contact.in .contact-bg { clip-path: circle(150% at 50% 100%); }
+  /* The contact section drives its own headline and rows so the sweep and the text arrive together. */
+  .js .contact.in .lines .line-inner { transform: none; }
+  .js .contact.in .reveal { opacity: 1; transform: none; }
+
+  .bob { animation: bob 5s ease-in-out infinite; }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .mask-frame:hover .mask-inner { transform: scale(1.015); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, ::before, ::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  .spin-slow, .spin-slower { animation: none; }
+  .painted-name { clip-path: none; }
+  .paint-name-brush { display: none; }
+}
